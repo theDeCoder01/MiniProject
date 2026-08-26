@@ -6,8 +6,10 @@ __pycache__/
 *.egg-info/
 venv/
 .venv/
+env/
 .pytest_cache/
 .coverage
+.coverage.*
 coverage.xml
 htmlcov/
 
@@ -16,22 +18,40 @@ htmlcov/
 *.tfstate.*
 .terraform/
 .terraform.lock.hcl
+crash.log
+crash.*.log
 *.tfvars
+*.tfvars.json
 !terraform.tfvars.example
+override.tf
+override.tf.json
+*_override.tf
+*_override.tf.json
+.terraformrc
+terraform.rc
+tfplan
+*.tfplan
+
+# SSH keys / secrets
+terraform/keys/
+*.pem
+*.key
+*.ppk
+id_rsa*
+id_ed25519*
+!*.pub
+.env
+.env.*
+credentials
 
 # IDE
 .vscode/
 .idea/
 *.swp
 *.swo
+*~
 
 # OS
 .DS_Store
 Thumbs.db
-
-# Secrets
-*.pem
-*.key
-.env
-.env.*
-credentials
+desktop.ini
