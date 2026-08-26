@@ -4,16 +4,12 @@ terraform {
   required_providers {
     aws = {
       source  = "hashicorp/aws"
-      version = "~> 5.0"
+      version = "~> 6.0"
     }
   }
 }
 
-provider "aws" {
-  region = var.aws_region
-}
-
-resource "aws_vpc" "Main_VPC" {
+resource "aws_vpc" "this" {
   cidr_block           = var.cidr_block
   enable_dns_support   = true
   enable_dns_hostnames = true
@@ -21,21 +17,21 @@ resource "aws_vpc" "Main_VPC" {
 }
 
 resource "aws_internet_gateway" "this" {
-  vpc_id = aws_vpc.Main_VPC.id
+  vpc_id = aws_vpc.this.id
   tags   = { Name = "${var.name}-igw" }
 }
 
 resource "aws_subnet" "public" {
-  count                   = length(var.public_subnet_cidrs)
-  vpc_id                  = aws_vpc.Main_VPC.id
-  cidr_block              = var.public_subnet_cidrs[count.index]
-  availability_zone       = var.aws_availability_zones[count.index]
+  for_each                = var.public_subnets
+  vpc_id                  = aws_vpc.this.id
+  cidr_block              = each.value.cidr_block
+  availability_zone       = each.value.availability_zone
   map_public_ip_on_launch = true
-  tags                    = { Name = "${var.name}-public-${count.index + 1}" }
+  tags                    = { Name = "${var.name}-public-${each.key}" }
 }
 
 resource "aws_route_table" "public" {
-  vpc_id = aws_vpc.Main_VPC.id
+  vpc_id = aws_vpc.this.id
 
   route {
     cidr_block = "0.0.0.0/0"
@@ -46,7 +42,7 @@ resource "aws_route_table" "public" {
 }
 
 resource "aws_route_table_association" "public" {
-  count          = length(var.public_subnet_cidrs)
-  subnet_id      = aws_subnet.public[count.index].id
+  for_each       = aws_subnet.public
+  subnet_id      = each.value.id
   route_table_id = aws_route_table.public.id
 }

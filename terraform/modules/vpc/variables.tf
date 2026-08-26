@@ -1,9 +1,3 @@
-variable "aws_region" {
-  description = "AWS region for the deployment"
-  type        = string
-  default     = "us-east-1"
-}
-
 variable "name" {
   description = "Name prefix for VPC resources."
   type        = string
@@ -15,14 +9,15 @@ variable "cidr_block" {
   type        = string
   default     = "10.0.0.0/16"
 }
-variable "aws_availability_zones" {
-  type        = list(string)
-  description = "List of availability zones for the VPC"
-  default     = ["us-east-1a"]
-}
+variable "public_subnets" {
+  description = "Public subnets to create, keyed by a stable name used in the resource address and tags."
+  type = map(object({
+    cidr_block        = string
+    availability_zone = string
+  }))
 
-variable "public_subnet_cidrs" {
-  description = "CIDR blocks for public subnets, one per availability zone."
-  type        = list(string)
-  default     = ["10.0.1.0/24"]
+  validation {
+    condition     = length(var.public_subnets) > 0
+    error_message = "At least one public subnet must be defined."
+  }
 }
