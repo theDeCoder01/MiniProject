@@ -6,33 +6,12 @@ terraform {
       source  = "hashicorp/aws"
       version = ">= 5.0"
     }
-    tls = {
-      source  = "hashicorp/tls"
-      version = ">= 4.0"
-    }
-    local = {
-      source  = "hashicorp/local"
-      version = ">= 2.0"
-    }
   }
 }
 
-#The following three resources are used to let Terraform
-#create a new SSH key pair for the EC2 instance.
-resource "tls_private_key" "my_key" {
-  algorithm = "RSA"
-  rsa_bits  = 4096
-}
-
-resource "aws_key_pair" "my_key" {
+resource "aws_key_pair" "this" {
   key_name_prefix = "${var.name}-"
-  public_key      = tls_private_key.my_key.public_key_openssh
-}
-
-resource "local_file" "private_key" {
-  content         = tls_private_key.my_key.private_key_pem
-  filename        = "Proj1-key.pem"
-  file_permission = "0400"
+  public_key      = file(var.public_key_path)
 }
 
 # Dynamic lookup for latest Ubuntu 22.04 LTS AMI
@@ -60,7 +39,7 @@ resource "aws_instance" "this" {
   ami                    = data.aws_ami.ubuntu.id
   instance_type          = var.instance_type
   subnet_id              = var.subnet_id
-  key_name               = aws_key_pair.my_key.key_name
+  key_name               = aws_key_pair.this.key_name
   vpc_security_group_ids = [var.security_group_id]
   user_data = templatefile("${path.module}/user_data.sh",
     {
