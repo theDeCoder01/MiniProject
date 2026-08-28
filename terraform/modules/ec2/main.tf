@@ -1,0 +1,73 @@
+terraform {
+  required_version = ">= 1.5"
+
+  required_providers {
+    aws = {
+      source  = "hashicorp/aws"
+      version = ">= 5.0"
+    }
+    tls = {
+      source  = "hashicorp/tls"
+      version = ">= 4.0"
+    }
+    local = {
+      source  = "hashicorp/local"
+      version = ">= 2.0"
+    }
+  }
+}
+
+#The following three resources are used to let Terraform
+#create a new SSH key pair for the EC2 instance.
+resource "tls_private_key" "my_key" {
+  algorithm = "RSA"
+  rsa_bits  = 4096
+}
+
+resource "aws_key_pair" "my_key" {
+  key_name   = "Proj1-key"
+  public_key = tls_private_key.my_key.public_key_openssh
+}
+
+resource "local_file" "private_key" {
+  content         = tls_private_key.my_key.private_key_pem
+  filename        = "Proj1-key.pem"
+  file_permission = "0400"
+}
+
+# Dynamic lookup for latest Ubuntu 22.04 LTS AMI
+#This approach gaurantees that the module always
+#uses the most recent (and correct) Ubuntu 22.04
+#LTS AMI based on the selected region. It also
+#prevents hardcoding certain AMI IDs that may get
+#deprecated or removed in the future. 
+data "aws_ami" "ubuntu" {
+  most_recent = true
+  owners      = ["099720109477"] # Canonical's official AWS Account ID
+
+  filter {
+    name   = "name"
+    values = ["ubuntu/images/hvm-ssd/ubuntu-jammy-22.04-amd64-server-*"]
+  }
+
+  filter {
+    name   = "virtualization-type"
+    values = ["hvm"]
+  }
+}
+
+resource "aws_instance" "this" {
+  ami                    = data.aws_ami.ubuntu.id
+  instance_type          = var.instance_type
+  subnet_id              = var.subnet_id
+  key_name               = aws_key_pair.my_key.key_name
+  vpc_security_group_ids = [module.security_group.security_group_id]
+  user_data              = var.user_data
+  root_block_device {
+    volume_size = var.root_volume_size
+  }
+
+  tags = {
+    Name = var.name
+  }
+}
