@@ -25,8 +25,8 @@ resource "tls_private_key" "my_key" {
 }
 
 resource "aws_key_pair" "my_key" {
-  key_name   = "Proj1-key"
-  public_key = tls_private_key.my_key.public_key_openssh
+  key_name_prefix = "${var.name}-"
+  public_key      = tls_private_key.my_key.public_key_openssh
 }
 
 resource "local_file" "private_key" {
@@ -61,11 +61,18 @@ resource "aws_instance" "this" {
   instance_type          = var.instance_type
   subnet_id              = var.subnet_id
   key_name               = aws_key_pair.my_key.key_name
-  vpc_security_group_ids = [module.security_group.security_group_id]
-  user_data              = var.user_data
+  vpc_security_group_ids = [var.security_group_id]
+  user_data = templatefile("${path.module}/user_data.sh",
+    {
+      repo_url = var.repo_url
+      app_port = var.app_port
+  })
+
+  user_data_replace_on_change = true
   root_block_device {
     volume_size = var.root_volume_size
   }
+
 
   tags = {
     Name = var.name

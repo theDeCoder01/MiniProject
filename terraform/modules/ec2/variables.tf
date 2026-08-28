@@ -13,15 +13,10 @@ variable "subnet_id" {
   description = "Subnet in which to launch the instance."
   type        = string
 }
-# variable "key_name" {
-#   description = "Key pair name for SSH access."
-#   type        = string
-# }
 
-variable "user_data" {
-  description = "Optional user data script."
+variable "security_group_id" {
+  description = "Security group ID to attach to the instance."
   type        = string
-  default     = file("${path.module}/user_data.sh")
 }
 
 variable "root_volume_size" {
