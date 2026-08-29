@@ -47,3 +47,15 @@ variable "create_eip" {
   type        = bool
   default     = true
 }
+
+variable "environment" {
+  description = "Environment tag applied to every resource (e.g. dev, staging, prod)."
+  type        = string
+  default     = "dev"
+}
+
+variable "project_name" {
+  description = "Project name, used as a prefix for resource names and tags across every module."
+  type        = string
+  default     = "project1"
+}

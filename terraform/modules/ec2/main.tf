@@ -54,7 +54,9 @@ resource "aws_instance" "this" {
 
 
   tags = {
-    Name = var.name
+    Name         = var.name
+    environment  = var.environment
+    project_name = var.project_name
   }
 }
 
