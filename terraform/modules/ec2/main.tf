@@ -57,3 +57,16 @@ resource "aws_instance" "this" {
     Name = var.name
   }
 }
+
+#Elastic IP
+
+resource "aws_eip" "this" {
+  count    = var.create_eip ? 1 : 0
+  instance = aws_instance.this.id
+  domain   = "vpc"
+
+  tags = {
+    Name = "${var.name}-eip"
+  }
+
+}

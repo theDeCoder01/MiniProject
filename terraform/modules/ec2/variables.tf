@@ -41,3 +41,9 @@ variable "app_port" {
   type        = number
   default     = 5000
 }
+
+variable "create_eip" {
+  description = "Whether to create an Elastic IP for the instance."
+  type        = bool
+  default     = true
+}

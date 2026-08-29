@@ -9,6 +9,6 @@ output "private_ip" {
 }
 
 output "public_ip" {
-  description = "The public IP address of the instance."
-  value       = aws_instance.this.public_ip
+  description = "The public IP address of the instance — the Elastic IP if one was created, otherwise the instance's own public IP."
+  value       = var.create_eip ? aws_eip.this[0].public_ip : aws_instance.this.public_ip
 }
