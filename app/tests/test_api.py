@@ -93,7 +93,7 @@ class TestAPIEndpoints:
         
         assert response.status_code == 400
         data = json.loads(response.data)
-        assert data["success"] is False
+        assert data["success"] == False
         assert "error" in data
     
     def test_create_todo_no_data(self, client):
@@ -103,7 +103,7 @@ class TestAPIEndpoints:
         
         assert response.status_code == 400
         data = json.loads(response.data)
-        assert data["success"] is False
+        assert data["success"] == False
     
     def test_get_todos_after_creating(self, client):
         """Test getting todos after creating some"""

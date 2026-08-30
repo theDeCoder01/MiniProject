@@ -60,7 +60,7 @@ jobs:
         uses: actions/upload-artifact@v7
         with:
           name: App-tests-coverage-report
-          path: ./app/tests/coverage_api.xml
+          path: app/tests/coverage_api.xml
           #Save the XML Report
 
       - name: Check coverage threshold
