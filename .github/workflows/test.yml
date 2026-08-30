@@ -19,7 +19,7 @@ jobs:
       matrix:
         os: [ubuntu-latest]
         python-version: ["3.11"]
-        working-directory: ["./app", "./app/tests"]
+        working-directory: ["MiniProject/app", "MiniProject/app/tests"]
 
     runs-on: ${{ matrix.os }}
     steps:
