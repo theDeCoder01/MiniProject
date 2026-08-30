@@ -5,8 +5,9 @@ output "vpc_id" {
 
 output "public_subnet_id" {
   value = module.vpc.public_subnet_ids[0]
-  # the [0] because the public_subnet_id is a list, not a string
-  description = "The IDs of the public subnets, ordered by subnet key"
+  # the [0] because module.vpc.public_subnet_ids is a list, not a string --
+  # this output holds just the one subnet this project deploys into.
+  description = "The ID of the public subnet"
 }
 
 output "security_group_id" {

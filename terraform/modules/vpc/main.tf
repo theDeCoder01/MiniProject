@@ -37,7 +37,7 @@ resource "aws_route_table" "public" {
     cidr_block = "0.0.0.0/0"
     gateway_id = aws_internet_gateway.this.id
   }
-
+  # the ${var.name}- is used to be able to append the "public-rt" to it.
   tags = { Name = "${var.name}-public-rt" }
 }
 
