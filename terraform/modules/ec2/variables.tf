@@ -59,3 +59,11 @@ variable "project_name" {
   type        = string
   default     = "project1"
 }
+
+#No need for ami_id since the module fetches it dynamically.
+#However, it was added to be able to toggle envs.
+variable "ami_id" {
+  description = "Pin a specific AMI ID for a stable, reproducible environment. Leave null (default) to always resolve the latest available Ubuntu 22.04 AMI at plan time."
+  type        = string
+  default     = null
+}

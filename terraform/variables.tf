@@ -22,9 +22,16 @@ variable "project_name" {
   default     = "project1"
 }
 
-variable "ssh_allowed_cidr" {
-  description = "CIDR allowed to reach SSH (port 22). Use your own public IP as a /32 -- never 0.0.0.0/0."
+variable "environment" {
+  description = "Environment tag applied to resources (dev, staging, prod). Set explicitly in each env/*.tfvars file."
   type        = string
+  default     = "dev"
+}
+
+variable "ssh_allowed_cidr" {
+  description = "CIDR allowed to reach SSH (port 22). Leave null (default) to auto-detect your current public IP at plan/apply time -- see the http data source in main.tf. Set explicitly only to override that detection."
+  type        = string
+  default     = null
 }
 
 variable "public_key_path" {
@@ -36,4 +43,23 @@ variable "app_port" {
   description = "Port the Flask app listens on. Shared by the security group and the EC2 module so the two can never drift apart."
   type        = number
   default     = 5000
+}
+
+#Variables introduced in order to be able to toggle envs.
+variable "instance_type" {
+  description = "EC2 instance type."
+  type        = string
+  default     = "t3.micro"
+}
+
+variable "root_volume_size" {
+  description = "Size of the root EBS volume, in GB."
+  type        = number
+  default     = 8
+}
+
+variable "ami_id" {
+  description = "Pin a specific AMI ID for a stable, reproducible environment. Leave null (default) to always resolve the latest available Ubuntu 22.04 AMI at plan time."
+  type        = string
+  default     = null
 }

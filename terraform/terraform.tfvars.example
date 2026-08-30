@@ -1,0 +1,17 @@
+#since there is a bouns task to have the ability
+#to toggle between environments, i'm not sure what
+#to fill here. I'll be creating tfvars for each env instead.
+
+#workspaces have to be created:
+#terraform workspace new dev
+
+#and then selected:
+#terraform workspace select dev
+
+#and then applied with the correct tfvars:
+#terraform apply -var-file=environments/dev.tfvars
+
+#and destroyed before switching to another
+#to safe on AWS credit:
+#terraform workspace select dev
+#terraform destroy -var-file=environments/dev.tfvars

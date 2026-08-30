@@ -36,7 +36,10 @@ data "aws_ami" "ubuntu" {
 }
 
 resource "aws_instance" "this" {
-  ami                    = data.aws_ami.ubuntu.id
+  # coalesce() returns the first non-null, non-empty argument -- so a pinned
+  # var.ami_id wins; leaving it null falls through to the dynamic lookup.
+  #this change has been done to be able to toggle envs.
+  ami                    = coalesce(var.ami_id, data.aws_ami.ubuntu.id)
   instance_type          = var.instance_type
   subnet_id              = var.subnet_id
   key_name               = aws_key_pair.this.key_name
