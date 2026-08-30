@@ -19,7 +19,6 @@ jobs:
       matrix:
         os: [ubuntu-latest]
         python-version: ["3.11"]
-        working-directory: ["app", "app/tests"]
 
     runs-on: ${{ matrix.os }}
     steps:
@@ -35,27 +34,27 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           pip install -r requirements.txt
-        working-directory: ${{ matrix.working-directory[0] }}
+        working-directory: app
 
       - name: lint with flake8
         run: |
           pip install flake8
           flake8 . --format='::warning file=%(path)s,line=%(row)d,col=%(col)d::[Flake8] %(code)s: %(text)s' --exit-zero
-        working-directory: ${{ matrix.working-directory[0] }}
+        working-directory: app
         #force flake 8 to code 0 while still echoing the errors.
     
       - name: Run security checks with bandit
         run: |
           pip install bandit
           bandit -r . --format=txt --exit-zero
-        working-directory: ${{ matrix.working-directory[0] }}
+        working-directory: app
         #force bandit to code 0 while still echoing the errors.
 
       - name: run tests with pytest
         run: |
             pip install pytest pytest-cov
             python -m pytest --cov=app --cov-report=term-missing --cov-report=xml:coverage_api.xml --junitxml=pytest-results.xml
-        working-directory: ${{ matrix.working-directory[1] }}
+        working-directory: app/tests
 
       - name: Check coverage threshold
         run: |
@@ -74,7 +73,7 @@ jobs:
           if coverage < 80:
               raise SystemExit(f"Coverage {coverage:.2f}% is below the required 80%")
           PY
-        working-directory: ${{ matrix.working-directory[1] }}
+        working-directory: app/tests
 
       - name: UploadSave coverage report artifact
         uses: actions/upload-artifact@v7
