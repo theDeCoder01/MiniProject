@@ -1,0 +1,81 @@
+name: Test
+
+on:
+  pull_request:
+    branches:
+      - main
+
+permissions:
+  contents: read #to pass Checkov security criteria.
+  pull-requests: write
+
+jobs:
+  Pytests:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest]
+        python-version: ["3.11"]
+        working-directory: ["./app", "./app/tests"]
+
+    runs-on: ${{ matrix.os }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v7
+
+      - name: Set up python
+        uses: actions/setup-python@v6
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+        working-directory: ${{ matrix.working-directory[0] }}
+
+      - name: lint with flake8
+        run: |
+          pip install flake8
+          flake8 . --format='::warning file=%(path)s,line=%(row)d,col=%(col)d::[Flake8] %(code)s: %(text)s' --exit-zero
+        working-directory: ${{ matrix.working-directory[0] }}
+        #force flake 8 to code 0 while still echoing the errors.
+    
+      - name: Run security checks with bandit
+        run: |
+          pip install bandit
+          bandit -r . --format=txt --exit-zero
+        working-directory: ${{ matrix.working-directory[0] }}
+        #force bandit to code 0 while still echoing the errors.
+
+      - name: run tests with pytest
+        run: |
+            pip install pytest pytest-cov
+            python -m pytest --cov=app --cov-report=term-missing --cov-report=xml:coverage_api.xml --junitxml=pytest-results.xml
+        working-directory: ${{ matrix.working-directory[1] }}
+
+      - name: Check coverage threshold
+        run: |
+          python - <<'PY'
+          import xml.etree.ElementTree as ET
+          from pathlib import Path
+
+          cov_path = Path('coverage_api.xml')
+          if not cov_path.exists():
+              raise SystemExit(f"Coverage report not found: {cov_path}")
+
+          root = ET.parse(cov_path).getroot()
+          coverage = float(root.attrib.get('line-rate', '0')) * 100
+          print(f"Coverage: {coverage:.2f}%")
+
+          if coverage < 80:
+              raise SystemExit(f"Coverage {coverage:.2f}% is below the required 80%")
+          PY
+        working-directory: ${{ matrix.working-directory[1] }}
+
+      - name: UploadSave coverage report artifact
+        uses: actions/upload-artifact@v7
+        with:
+          name: App-tests-coverage-report
+          path: ./app/tests/coverage_api.xml
+          #Save the XML Report

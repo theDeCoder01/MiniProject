@@ -1,7 +1,3 @@
-# Example values for every root variable, for reference. Copy relevant lines
-# into your own terraform.tfvars (gitignored) if you want to run against a
-# single, non-workspaced configuration.
-#
 # For the actual dev/staging/prod setup this project uses, see env/*.tfvars
 # instead -- this file documents what every variable looks like; those files
 # hold what each real environment actually uses.
@@ -11,40 +7,30 @@
 #   terraform plan  -var-file=env/dev.tfvars
 #   terraform apply -var-file=env/dev.tfvars
 #
-# Tear an environment down before switching to another to save on AWS spend:
+# Tear an environment down before switching to another to save on AWS credit:
 #   terraform workspace select dev
 #   terraform destroy -var-file=env/dev.tfvars
 
-# --- Core / naming -----------------------------------------------------------
+#as per teh assignment, here are some examples for variables.
+
+# Root Main
 
 aws_region        = "eu-central-1"
 project_name      = "project1"
 environment       = "dev" # dev | staging | prod
 
-# --- Networking (VPC module) --------------------------------------------------
+# Networking (VPC module)
 
-cidr_block        = "10.0.1.0/24" # the public subnet's CIDR, per the assignment spec
+cidr_block        = "10.0.1.0/24" # the public subnet's CIDR, per spec
 availability_zone = "eu-central-1a"
 
-# --- Security group ------------------------------------------------------------
-
-# Optional. Leave unset (or commented out) to auto-detect your current public
-# IP at plan/apply time -- see the http data source in main.tf. Set explicitly
-# only if you need to override that detection (e.g. a fixed office IP).
-# ssh_allowed_cidr = "203.0.113.10/32"
+# Security group
 
 app_port = 5000
 
-# --- EC2 -------------------------------------------------------------------
+# EC2
 
-# Required -- no safe default exists. Path to the public half of the
-# dedicated project SSH key (see terraform/keys/), relative to this directory.
 public_key_path = "keys/project1.pub"
 
 instance_type    = "t3.micro" # free-tier eligible
 root_volume_size = 8          # GB
-
-# Optional. Leave unset (or commented out) to always resolve the latest
-# available Ubuntu 22.04 AMI at plan time. Set to pin a specific, reproducible
-# AMI instead:
-# ami_id = "ami-009b038a3a0d89866"
